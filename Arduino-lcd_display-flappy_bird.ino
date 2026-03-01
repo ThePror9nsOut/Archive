@@ -26,7 +26,7 @@ int lastPipePos[numOfPipes];
 
 int score = 0;
 
-  // Characters
+// Characters
 byte bird[3] = {B10110,
                 B01111,
                 B00110};
@@ -36,7 +36,7 @@ byte embeddedBird[8] = {B00000,B00000,B00000,B00000,B00000,B00000,B00000,B00000}
 byte currentPipe[8] = {B00000,B00000,B00000,B00000,B00000,B00000,B00000,B00000};
 
 void updatePipe(int index) {
-  pipes[index] = rand() % 8+1;
+  pipes[index] = random(1, 9);
 
   for (int block = 0; block < 2; block++) {
     for (int row = 0; row < 8; row++) {
@@ -54,8 +54,7 @@ void updatePipe(int index) {
 
 void initializePipes() {
   for (int i = 0; i < numOfPipes; i++) {
-    srand(i);
-    pipes[i] = rand() % 8+1;
+    pipes[i] = random(1,9);
   }
 
   for (int pipe = 0; pipe < numOfPipes; pipe++) {
@@ -71,8 +70,11 @@ void setup() {
 
   pinMode(jumpButton, INPUT);
 
-  srand(millis()*100);
-
+  randomSeed(analogRead(0));
+  
+  for (int i = 0; i < numOfPipes; i++) {
+    lastPipePos[i] = -1;
+   }
 
   initializePipes();
 }
@@ -94,7 +96,6 @@ void loop() {
   if (lastTime < time) {
     lastTime = time;
 
-    // WRAPING
     if (birdPos[0] <= 0-3) {
       if (birdBlock[0] > 0) {
         birdBlock[0] -= 1;
@@ -148,7 +149,8 @@ void loop() {
 
 
       if (pos == birdBlock[0]) {
-        if (birdPos[1] < pipes[pipe] && birdBlock[1] == 0 || birdPos[1]+3 > pipes[pipe] && birdBlock[1] == 1) {
+        if ((birdBlock[1] == 0 && birdPos[1] < pipes[pipe]) ||
+            (birdBlock[1] == 1 && birdPos[1] + 3 > pipes[pipe])) {
           score = 0;
           lastPipeScored = pipe;
         }
